@@ -4,6 +4,7 @@ from pybrain.tools.shortcuts     import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure.modules   import SoftmaxLayer
 import scipy as scipy
+import time
 
 #visualizing things
 from pylab import ion, ioff, figure, draw, contourf, clf, show, hold, plot
@@ -19,20 +20,6 @@ with open('Desktop/train.json') as data_file_train:
     trndata = json.load(data_file_train)
 with open('Desktop/test.json') as data_file_test:    
     tstdata = json.load(data_file_test)
-#
-#print len(trndata[0]["ingredients"])
-#print len(trndata[90]["ingredients"])
-#ingredlength = []
-#for n in range(0,len(trndata)):
-#    ingredlength.append(len(trndata[n]["ingredients"]))
-#print "max", max(ingredlength)
-#print "min", min(ingredlength)
-#print ingredlength.index(1)
-#print trndata[940]
-#print ingredlength.index(65)
-#print trndata[15289]
-#print ingredlength.index(5)
-
 
 cuisineList = []
 ingredientList = []
@@ -59,24 +46,8 @@ print "Number of recipes", recipes_length  #39774
 cuisine = [item['cuisine'] for item in trndata]
 print 'Number of cuisines', len(cuisine)  #39774
 
-
-### use this!!
-#big_data_matrix = []
-#big_data_matrix.append([1,2,3])
-#big_data_matrix.append([4,5,6])
-#print big_data_matrix
-#print big_data_matrix[1]
-
-
-#zeros = [0] * 100
-#print zeros
-
-#sorry, only vague enough for me to remember whats going on :P
-#enumerate each ingredient and store in vector
+#enumerate each ingredient
 #then for each recipe, put 1 where ingredient exist and 0 if not
-#
-#big_data_matrix = scipy.sparse.dok_matrix((len(trndata), len(unique_ingreds)), dtype=np.dtype(bool))
-
 big_data_matrix = []
 counter = 0
 dcounter = 0
@@ -89,18 +60,34 @@ for d,dish in enumerate(recipes):  #39774
             ingred_exists[i] = 1
     big_data_matrix.append(ingred_exists)
     counter += 1
-    print "Progress... ", counter, " / ", recipes_length
-print 'success!'
-##
-#
+    print "Recipes progress... ", counter, " / ", recipes_length
+print 'recipes success!'
+print 'time taken: ', time.clock()   # in seconds
+
+#cuisine matrix
+cuisine_matrix = []
 counter = 0
-ds = ClassificationDataSet(unique_ingreds_length, 1 , nb_classes=unique_cuisine_length)
-for k in xrange(recipes_length): 
-    ds.addSample(big_data_matrix[k],cuisine[k])
+for c,cuis in enumerate(cuisine):
+    cuisine_type = [0]*unique_cuisine_length
+    for t,types in enumerate(unique_cuisine):
+        if types in cuis:
+            cuisine_type[t] = 1
+    cuisine_matrix.append(cuisine_type)
     counter += 1
-    print "added into dataset", counter, " / ", len(cuisine)
+    print "Cuisines progress... ", counter, " / ", recipes_length
+print 'cuisines success!'
+
+print 'time taken: ', time.clock()  # in seconds
+# can probably merge the upper 2?
+
+counter = 0
+ds = ClassificationDataSet(unique_ingreds_length, unique_cuisine_length , nb_classes=unique_cuisine_length)
+for k in xrange(recipes_length): 
+    ds.addSample(big_data_matrix[k],cuisine_matrix[k])
+    counter += 1
+    print "added into dataset... ", counter, " / ", recipes_length
 print 'classification dataset done!'
-#    
+    
 #    
 #tstdata, trndata = ds.splitWithProportion( 0.25 )
 #tstdata_temp, trndata_temp = ds.splitWithProportion(0.25)
