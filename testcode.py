@@ -18,7 +18,13 @@ import numpy as np
 import json
 from pprint import pprint
 
-with open('M:/Canopy/train.json') as data_file_train:    
+##-------------------------
+# Control panel
+##-------------------------
+train_file = 'Desktop/train.json'
+test_file = 'Desktop/test.json'
+
+with open(train_file) as data_file_train:    
     trn = json.load(data_file_train)
 #with open('M:/Canopy/test.json') as data_file_test:    
 #    tstdata = json.load(data_file_test)
@@ -122,24 +128,24 @@ print 'split = ok'
 
 #save data - replace fnn with this
 #if  os.path.isfile('food.xml'): 
-fnn = NetworkReader.readFrom('food.xml') 
+#fnn = NetworkReader.readFrom('food.xml') 
 #else:
     #fnn = buildNetwork( trndata.indim, 100 , trndata.outdim, outclass=SoftmaxLayer )
 
-#fnn = buildNetwork( trndata.indim, 100 , trndata.outdim, outclass=SoftmaxLayer )
+fnn = buildNetwork( trndata.indim, 100 , trndata.outdim, outclass=SoftmaxLayer )
 trainer = BackpropTrainer( fnn, dataset=trndata, momentum=0.1, learningrate=0.01 , verbose=True, weightdecay=0.01) 
 
 print 'neural net made.'
 print 'training start.'
 
 
-#
-#trainer.trainEpochs (25)  # the more recipes there are, the longer each epoch will take
-#print 'Percent Error on Test dataset: ' , percentError( trainer.testOnClassData (
-#           dataset=tstdata )
-#           , tstdata['class'] )
 
-NetworkWriter.writeToFile(fnn, 'M:/Canopy/food.xml')
+trainer.trainEpochs (25)  # the more recipes there are, the longer each epoch will take
+print 'Percent Error on Test dataset: ' , percentError( trainer.testOnClassData (
+           dataset=tstdata )
+           , tstdata['class'] )
+
+NetworkWriter.writeToFile(fnn, 'Desktop/food.xml')
 print 'time taken: ', time.clock()
 
 # TRAINING RESULTS
@@ -159,7 +165,7 @@ print 'time taken: ', time.clock()
 
 ####------------------------------------------------------------------------------------------------
 
-with open('M:/Canopy/test.json') as data_file_test:    
+with open(test_file) as data_file_test:    
     tst = json.load(data_file_test)
     
 test_recipes = [item['ingredients'] for item in tst] 
